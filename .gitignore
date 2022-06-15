@@ -47,6 +47,7 @@ test_run_dir/*
 .metals
 project
 .bloop
+generated
 
 # project-wide generated files
 *.gise

@@ -1,9 +1,33 @@
 // See README.md for license details.
 
-package gcd
+package gpu
 
 import chisel3._
 import chisel3.util.Decoupled
+
+class GCD extends Module {
+  val io = IO(new Bundle {
+    val value1 = Input(UInt(16.W))
+    val value2 = Input(UInt(16.W))
+    val loadingValues = Input(Bool())
+    val outputGCD = Output(UInt(16.W))
+    val outputValid = Output(Bool())
+  })
+
+  val x = Reg(UInt())
+  val y = Reg(UInt())
+
+  when(x > y) { x := x - y }
+    .otherwise { y := y - x }
+
+  when(io.loadingValues) {
+    x := io.value1
+    y := io.value2
+  }
+
+  io.outputGCD := x
+  io.outputValid := y === 0.U
+}
 
 class GcdInputBundle(val w: Int) extends Bundle {
   val value1 = UInt(w.W)
@@ -13,32 +37,25 @@ class GcdInputBundle(val w: Int) extends Bundle {
 class GcdOutputBundle(val w: Int) extends Bundle {
   val value1 = UInt(w.W)
   val value2 = UInt(w.W)
-  val gcd    = UInt(w.W)
+  val gcd = UInt(w.W)
 }
 
-/**
-  * Compute Gcd using subtraction method.
-  * Subtracts the smaller from the larger until register y is zero.
-  * value input register x is then the Gcd.
-  * Unless first input is zero then the Gcd is y.
-  * Can handle stalls on the producer or consumer side
-  */
 class DecoupledGcd(width: Int) extends Module {
   val input = IO(Flipped(Decoupled(new GcdInputBundle(width))))
   val output = IO(Decoupled(new GcdOutputBundle(width)))
 
-  val xInitial    = Reg(UInt())
-  val yInitial    = Reg(UInt())
-  val x           = Reg(UInt())
-  val y           = Reg(UInt())
-  val busy        = RegInit(false.B)
+  val xInitial = Reg(UInt())
+  val yInitial = Reg(UInt())
+  val x = Reg(UInt())
+  val y = Reg(UInt())
+  val busy = RegInit(false.B)
   val resultValid = RegInit(false.B)
 
-  input.ready := ! busy
+  input.ready := !busy
   output.valid := resultValid
   output.bits := DontCare
 
-  when(busy)  {
+  when(busy) {
     when(x > y) {
       x := x - y
     }.otherwise {
