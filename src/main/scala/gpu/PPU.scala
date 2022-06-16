@@ -1,5 +1,8 @@
 package gpu
 
+import gpu.SIPO
+import gpu.PISO
+
 import chisel3._
 import chisel3.util._
 
@@ -25,14 +28,16 @@ class PPU extends Module {
   // upper 8 bits = next tile's data (8x8), prob just an 8bit addr into VRAM
   // lower 8 bits = pixel to render (x, y)
   // contains pattern table data
-  val shift_reg_0 = ShiftRegister(io.vram_addr, 16)
-  val shift_reg_1 = ShiftRegister(shift_reg_0, 16)
+  val shift_reg_0 = Module(new gpu.PISO(16))
+  val shift_reg_1 = Module(new gpu.PISO(16))
+
+  // set the registers
 
   // 8-bit SIPO, loaded every 8 cycles
   // fetch the next palette for the tile above
   // latch serial in, outputs into the register
-  val sipo_0 = ShiftRegister(io.palette_addr, 8)
-  val sipo_1 = ShiftRegister(sipo_0, 8)
+  val sipo_0 = Module(new gpu.SIPO(8))
+  val sipo_1 = Module(new gpu.SIPO(8))
 
   // we only need 64 bits (8 bytes) to store each pixel's color
   // also 3 color emphasis bits
@@ -44,8 +49,8 @@ class PPU extends Module {
 
   // mux fine_x
   // only the upper 8 bits of shift reg
-  val BG_pixel_0 = Mux(io.latch_in_0, shift_reg_0, sipo_0)
-  val BG_pixel_1 = Mux(io.latch_in_1, shift_reg_0, sipo_1)
+  // val BG_pixel_0 = Mux(io.latch_in_0, shift_reg_0, sipo_0)
+  // val BG_pixel_1 = Mux(io.latch_in_1, shift_reg_0, sipo_1)
 
 }
 
