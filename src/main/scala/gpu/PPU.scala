@@ -50,37 +50,3 @@ class PPU extends Module {
 }
 
 class VRAM extends Module {}
-
-// object SIPO extends Module {
-//   val reg = RegInit(0.U(SIPO.width))
-// }
-
-/** Serial in, parallel out
-  *
-  * @param width
-  *   >= 1
-  */
-class SIPO(width: Int) extends Module {
-  val io = IO(new Bundle {
-    val in = Input(Bool())
-    val parallel_out = Output(UInt(width.W))
-    val out = Output(Bool())
-  })
-
-  // ignores reset
-  val register = Reg(UInt(width.W))
-  register := register >> 1
-
-  // output serial
-  io.out := 1.U(width.W) & register
-
-  // output parallel
-  io.parallel_out := register
-
-  // set input
-  register := (io.in << (width-1)) | register
-
-  println(s"PRINTING")
-  println(s"io = $io")
-  printf(s"register = $register")
-}
