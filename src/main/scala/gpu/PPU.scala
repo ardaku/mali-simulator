@@ -63,23 +63,24 @@ class VRAM extends Module {}
 class SIPO(width: Int) extends Module {
   val io = IO(new Bundle {
     val in = Input(Bool())
-    // it makes sense to make a vec or wire of Bool, len width
     val parallel_out = Output(UInt(width.W))
     val out = Output(Bool())
   })
 
-  // static reg or maybe companion object
-  // does it keep its value?
-  // but a register should get remebered
-  // not a wire or a local var
-
   // ignores reset
   val register = Reg(UInt(width.W))
-  register >> 1
+  register := register >> 1
 
   // output serial
   io.out := 1.U(width.W) & register
 
   // output parallel
   io.parallel_out := register
+
+  // set input
+  register := (io.in << (width-1)) | register
+
+  println(s"PRINTING")
+  println(s"io = $io")
+  printf(s"register = $register")
 }
