@@ -9,7 +9,7 @@ import chisel3.util.switch
   *   >= 1
   */
 class SIPO(width: Int) extends Module {
-  val io = IO(new Bundle {
+  val io = IO(new Bundle {   
     val in = Input(Bool())
     val parallel_out = Output(UInt(width.W))
     val out = Output(Bool())
