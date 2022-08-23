@@ -21,7 +21,7 @@ class ControlListExecutor extends Module {
   }
 
   // use it to figure out what to do
-  io.control_list := 0
+  io.control_list := 0.U
 }
 
 class DMAWriter extends Module {}
