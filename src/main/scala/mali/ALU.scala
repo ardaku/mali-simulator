@@ -2,6 +2,12 @@ package mali
 
 import chisel3._
 
+// Just storage
+class RegisterFile(n: Int, size: Int) extends Bundle {
+  // 32X or N registers of size S
+  val registers = VecInit(Seq.fill(n)(0.U(size.W)))
+}
+
 class ALU extends Module {
   val io = IO(new Bundle {
     val opcode = Input(Bool())
